@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_10">10dp</dimen>
+    <dimen name="extra_large_30dp">30dp</dimen>
+    <dimen name="large_20dp">20dp</dimen>
+    <dimen name="extra_large_50dp">50dp</dimen>
+
+    <dimen name="t0_size">11sp</dimen>
+    <dimen name="t1_size">14sp</dimen>
+    <dimen name="t2_size">17sp</dimen>
+    <dimen name="t4_size">14sp</dimen>
+    <dimen name="t3_size">12sp</dimen>
+    <dimen name="t13_size">13sp</dimen>
+
+    <dimen name="margin_boarder">0.5dp</dimen>
+    <dimen name="common_margin">10dp</dimen>
+
+    <dimen name="icon_size_small">20dp</dimen>
+    <dimen name="icon_size_large">40dp</dimen>
+
+    <dimen name="margin_small">5dp</dimen>
+    <dimen name="margin_large">10dp</dimen>
+    <dimen name="margin_xlarge">15dp</dimen>
+    <dimen name="margin_xxlarge">20dp</dimen>
+    <dimen name="margin_xxxlarge">25dp</dimen>
+    <dimen name="margin_xxxxlarge">30dp</dimen>
+    <dimen name="margin_xxxxxlarge">40dp</dimen>
+    <dimen name="margin_xxxxxxlarge">50dp</dimen>
+
+    <dimen name="t0_padding">5dp</dimen>
+    <dimen name="t1_padding">10dp</dimen>
+
+    <dimen name="common_line">0.5dp</dimen>
+
+    <dimen name="card_radius_8dp">8dp</dimen>
+    <dimen name="card_elevation_4dp">4dp</dimen>
+</resources>
