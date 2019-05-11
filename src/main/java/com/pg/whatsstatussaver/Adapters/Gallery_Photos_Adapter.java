@@ -1,6 +1,7 @@
 package com.pg.whatsstatussaver.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.pg.whatsstatussaver.R;
+import com.pg.whatsstatussaver.ViewPhotos;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,10 +44,9 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         this.status = status;
     }
 
-    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images, ArrayList<String> image_path) {
+    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images) {
         this.context = context;
         this.bitmaps = images;
-        this.path=image_path;
     }
 
     public void Add(Bitmap bitmap){
@@ -74,6 +75,16 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                     // read original from cache (if present) otherwise download it and decode it
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(holder.gallery_image);
+
+            holder.gallery_image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent view_photos=new Intent(context, ViewPhotos.class);
+                    view_photos.putExtra("image",images.get(i));
+                    context.startActivity(view_photos);
+                }
+            });
+
         }else {
             holder.gallery_video_icon.setVisibility(View.VISIBLE);
             holder.gallery_image.setImageBitmap(bitmaps.get(i));
@@ -89,25 +100,26 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
 //                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
 //            }
 
-            holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
 
-                private GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDoubleTap(MotionEvent e) {
-                        String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-                        copyFileOrDirectory(path.get(i),descPath);
-                        holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
-                        return super.onDoubleTap(e);
-                    }// implement here other callback methods like onFling, onScroll as necessary
-                });
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    gestureDetector.onTouchEvent(event);
-                    return true;
-
-                }
-            });
+//            holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
+//
+//                private GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+//                    @Override
+//                    public boolean onDoubleTap(MotionEvent e) {
+//                        String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+//                        copyFileOrDirectory(path.get(i),descPath);
+//                        holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+//                        return super.onDoubleTap(e);
+//                    }// implement here other callback methods like onFling, onScroll as necessary
+//                });
+//
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    gestureDetector.onTouchEvent(event);
+//                    return true;
+//
+//                }
+//            });
 
 
         }

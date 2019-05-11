@@ -1,6 +1,13 @@
 package com.pg.whatsstatussaver.Fragments;
 
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
@@ -11,7 +18,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +32,9 @@ import android.view.ViewGroup;
 
 import com.pg.whatsstatussaver.Adapters.AdapterForThumbNails;
 import com.pg.whatsstatussaver.Adapters.StatusAdapter;
+import com.pg.whatsstatussaver.CustomService.GettingStatusVideos;
+import com.pg.whatsstatussaver.CustomService.GettingWhatAppVideoThumbNails;
+import com.pg.whatsstatussaver.InterFace.Videos;
 import com.pg.whatsstatussaver.R;
 
 import java.io.ByteArrayOutputStream;
@@ -30,11 +42,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Videos_Fragment extends Fragment {
+public class Videos_Fragment extends Fragment  {
     private View view;
 
     private RecyclerView videos_recyclerview;
@@ -42,7 +57,6 @@ public class Videos_Fragment extends Fragment {
 
     private ArrayList<Bitmap> thumbNails=new ArrayList<>();
     private String image_path;
-
     private AdapterForThumbNails adapterForThumbNails;
 
 
@@ -60,100 +74,60 @@ public class Videos_Fragment extends Fragment {
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         videos_recyclerview=view.findViewById(R.id.videos_recyclerview);
         videos_refresh=view.findViewById(R.id.videos_refresh);
-        getImages();
 
         videos_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onRefresh() {
                 videos_refresh.setRefreshing(true);
-                getImages();
+                JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(JOB_SCHEDULER_SERVICE);
+                ComponentName componentName = new ComponentName(getActivity(), GettingStatusVideos.class);
+                JobInfo jobInfo = new JobInfo.Builder(2, componentName).setOverrideDeadline(10).build();
+                jobScheduler.schedule(jobInfo);
+
+                LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                        new IntentFilter("status-videos"));
             }
         });
+        JobScheduler jobScheduler = (JobScheduler) getActivity().getSystemService(JOB_SCHEDULER_SERVICE);
+        ComponentName componentName = new ComponentName(getActivity(), GettingStatusVideos.class);
+        JobInfo jobInfo = new JobInfo.Builder(2, componentName).setOverrideDeadline(10).build();
+        jobScheduler.schedule(jobInfo);
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter("status-videos"));
+
+        adapterForThumbNails=new AdapterForThumbNails(getActivity(),thumbNails);
+        videos_recyclerview.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        videos_recyclerview.setAdapter(adapterForThumbNails);
+
 
     }
-    private void getImages() {
-        thumbNails.clear();
-        String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/.Statuses";
-        //String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/WhatsApp Images";
-        // String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/WhatsApp Video";
-        File f = new File(path);
-        //  File file[] = f.listFiles();
-        //Log.e("images",file.toString());
-        File files[] = f.listFiles();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
-        }
-        for (File imagePath : files) {
-            try {
-                if (//imagePath.getName().contains(".jpg") || imagePath.getName().contains(".JPG")
-//                        || imagePath.getName().contains(".jpeg") || imagePath.getName().contains(".JPEG")
-//                        || imagePath.getName().contains(".png") || imagePath.getName().contains(".PNG")
-                         imagePath.getName().contains(".mp4") || imagePath.getName().contains(".MP4")
-                        || imagePath.getName().contains(".3gp") || imagePath.getName().contains(".3GP")) {
-                    image_path = imagePath.getAbsolutePath();
-
-                    MyTask task=new MyTask();
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,image_path);
-                }
-            }
-            //  }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    public String createVideoThumbNail(String path){
-        Bitmap bitmap= ThumbnailUtils.createVideoThumbnail(path, MediaStore.Images.Thumbnails.MINI_KIND);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-
-        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-        return encoded;
-    }
-
-
-    public Bitmap StringToBitMap(String encodedString){
-        try {
-            byte [] encodeByte=Base64.decode(encodedString,Base64.DEFAULT);
-            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-          //  Log.e("bitmap", String.valueOf(bitmap));
-            return bitmap;
-        } catch(Exception e) {
-            e.getMessage();
-            return null;
-        }
-    }
-
-    class MyTask extends AsyncTask<String,Void,String>{
-
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
-        protected String doInBackground(String... strings) {
-
-            String result=createVideoThumbNail(strings[0]);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            thumbNails.add(StringToBitMap(s));
-
-            adapterForThumbNails=new AdapterForThumbNails(getActivity(),thumbNails);
-            videos_recyclerview.setLayoutManager(new GridLayoutManager(getActivity(),2));
-            videos_recyclerview.setAdapter(adapterForThumbNails);
+        public void onReceive(Context context, Intent intent) {
+            Bundle b = getActivity().getIntent().getExtras();
+            HashMap<String, ArrayList<Bitmap>> hashMap = (HashMap<String, ArrayList<Bitmap>>)intent.getSerializableExtra("map");
+            thumbNails.clear();
+            thumbNails.addAll(hashMap.get("bitmap"));
+            adapterForThumbNails.notifyDataSetChanged();
             videos_refresh.setRefreshing(false);
         }
+    };
+
+    @Override
+    public void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
     }
+
 
 }

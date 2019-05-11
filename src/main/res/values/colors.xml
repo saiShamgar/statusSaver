@@ -5,7 +5,7 @@
     <color name="colorAccent">#D81B60</color>
 
     <color name="white">#ffffff</color>
-
+    <color name="app_color">#075e54</color>
     <color name="light_black_font_color">#757575</color>
     <color name="black">#000000</color>
 </resources>

@@ -76,7 +76,6 @@ public class Photos_Fragment extends Fragment {
         });
         getImages();
     }
-
         private void getImages() {
         images.clear();
         String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/.Statuses";
