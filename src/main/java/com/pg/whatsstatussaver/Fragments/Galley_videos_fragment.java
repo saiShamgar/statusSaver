@@ -98,7 +98,7 @@ public class Galley_videos_fragment extends Fragment implements Videos{
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter("custom-event-name"));
 
-        adapter=new Gallery_Photos_Adapter(getActivity(),images);
+        adapter=new Gallery_Photos_Adapter(getActivity(),images,image_path);
         GridLayoutManager gridLayoutManager=new GridLayoutManager(getActivity(),3);
         gallery_videos_recycler.setLayoutManager(gridLayoutManager);
         gallery_videos_recycler.setAdapter(adapter);
@@ -118,10 +118,14 @@ public class Galley_videos_fragment extends Fragment implements Videos{
         public void onReceive(Context context, Intent intent) {
             Bundle b = getActivity().getIntent().getExtras();
             HashMap<String, ArrayList<Bitmap>> hashMap = (HashMap<String, ArrayList<Bitmap>>)intent.getSerializableExtra("map");
+            HashMap<String, ArrayList<String>> hashMap1 = (HashMap<String, ArrayList<String>>)intent.getSerializableExtra("url");
             images.clear();
+            image_path.clear();
             images.addAll(hashMap.get("bitmap"));
+            image_path.addAll(hashMap1.get("urls"));
             adapter.notifyDataSetChanged();
             _gallery_videos_refresh.setRefreshing(false);
+            //Log.e("url",image_path.toString());
         }
     };
 

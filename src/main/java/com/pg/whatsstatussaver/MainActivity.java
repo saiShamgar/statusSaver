@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
         setContentView(R.layout.activity_main);
 
 
-
-
         tabLayout= (TabLayout) findViewById(R.id.maintabs);
         viewPager=findViewById(R.id.main_pager);
 

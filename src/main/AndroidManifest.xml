@@ -12,9 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ViewPhotos"
-            android:theme="@style/AppThemeWithNoActionBar"
-            android:screenOrientation="portrait"></activity>
+        <activity android:name=".Play_video"></activity>
+        <activity
+            android:name=".ViewPhotos"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeWithNoActionBar" />
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"

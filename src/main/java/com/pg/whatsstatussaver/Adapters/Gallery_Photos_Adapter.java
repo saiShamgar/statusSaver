@@ -17,6 +17,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.pg.whatsstatussaver.Play_video;
 import com.pg.whatsstatussaver.R;
 import com.pg.whatsstatussaver.ViewPhotos;
 
@@ -44,9 +45,10 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         this.status = status;
     }
 
-    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images) {
+    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images,ArrayList<String> video_urls) {
         this.context = context;
         this.bitmaps = images;
+        this.path=video_urls;
     }
 
     public void Add(Bitmap bitmap){
@@ -80,7 +82,8 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                 @Override
                 public void onClick(View v) {
                     Intent view_photos=new Intent(context, ViewPhotos.class);
-                    view_photos.putExtra("image",images.get(i));
+                    view_photos.putStringArrayListExtra("image",images);
+                    view_photos.putExtra("position",i);
                     context.startActivity(view_photos);
                 }
             });
@@ -88,6 +91,15 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         }else {
             holder.gallery_video_icon.setVisibility(View.VISIBLE);
             holder.gallery_image.setImageBitmap(bitmaps.get(i));
+            holder.gallery_image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent view_photos=new Intent(context, Play_video.class);
+                    view_photos.putStringArrayListExtra("image",path);
+                    view_photos.putExtra("position",i);
+                    context.startActivity(view_photos);
+                }
+            });
             //setHasStableIds(true);
 //            //checking image is favourite or not
 //            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";

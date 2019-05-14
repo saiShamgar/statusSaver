@@ -1,6 +1,7 @@
 package com.pg.whatsstatussaver.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.pg.whatsstatussaver.R;
+import com.pg.whatsstatussaver.ViewPhotos;
 
 import java.util.ArrayList;
 
@@ -48,6 +50,17 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.ViewHolder
                 // read original from cache (if present) otherwise download it and decode it
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(holder.status_image);
+
+        holder.status_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent view_photos=new Intent(context, ViewPhotos.class);
+                view_photos.putStringArrayListExtra("image",images);
+                view_photos.putExtra("position",i);
+                context.startActivity(view_photos);
+            }
+        });
+
     }
 
     @Override

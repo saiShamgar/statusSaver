@@ -1,39 +1,38 @@
 package com.pg.whatsstatussaver;
 
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.pg.whatsstatussaver.Adapters.MySplashScreenAdapter;
+import com.pg.whatsstatussaver.Adapters.ViewPhotosAdapter;
+
+import java.util.ArrayList;
 
 public class ViewPhotos extends AppCompatActivity {
 
-    String image;
-    private ImageView viewPhotos_img;
+    int position;
+    private ArrayList<String> image=new ArrayList<>();
+   private ViewPager viewPhotos_rec;
+   private ViewPhotosAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_photos);
 
-        viewPhotos_img=findViewById(R.id.viewPhotos_img);
-        image=getIntent().getExtras().getString("image");
+     //   viewPhotos_img=findViewById(R.id.viewPhotos_img);
+        image=getIntent().getExtras().getStringArrayList("image");
+        position=getIntent().getExtras().getInt("position");
 
-        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
-        circularProgressDrawable.setStrokeWidth(5f);
-        circularProgressDrawable.setCenterRadius(30f);
-        circularProgressDrawable.start();
-        Glide.with(this)
-                .load(image)
-                .placeholder(circularProgressDrawable)
-                .error(R.drawable.ic_image_black_24dp)
-                // read original from cache (if present) otherwise download it and decode it
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .into(viewPhotos_img);
-
-
-
-
+        viewPhotos_rec=findViewById(R.id.viewPhotos_img);
+        viewPhotos_rec.setAdapter(new MySplashScreenAdapter(this,image,position));
+        viewPhotos_rec.setCurrentItem(position);
     }
 }

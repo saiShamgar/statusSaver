@@ -1,6 +1,7 @@
 package com.pg.whatsstatussaver.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.pg.whatsstatussaver.Play_video;
 import com.pg.whatsstatussaver.R;
 
 import java.util.ArrayList;
@@ -17,11 +19,13 @@ public class AdapterForThumbNails extends RecyclerView.Adapter<AdapterForThumbNa
 
     private Context context;
     private ArrayList<Bitmap> images;
+    private ArrayList<String> path;
 
 
-    public AdapterForThumbNails(Context context, ArrayList<Bitmap> images) {
+    public AdapterForThumbNails(Context context, ArrayList<Bitmap> images,ArrayList<String> urls) {
         this.context = context;
         this.images = images;
+        this.path=urls;
     }
 
     @NonNull
@@ -35,7 +39,15 @@ public class AdapterForThumbNails extends RecyclerView.Adapter<AdapterForThumbNa
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         holder.status_image.setImageBitmap(images.get(i));
-        holder.setIsRecyclable(false);
+        holder.status_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent view_photos=new Intent(context, Play_video.class);
+                view_photos.putStringArrayListExtra("image",path);
+                view_photos.putExtra("position",i);
+                context.startActivity(view_photos);
+            }
+        });
     }
 
     @Override

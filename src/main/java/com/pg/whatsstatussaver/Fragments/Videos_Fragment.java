@@ -56,7 +56,8 @@ public class Videos_Fragment extends Fragment  {
     private SwipeRefreshLayout videos_refresh;
 
     private ArrayList<Bitmap> thumbNails=new ArrayList<>();
-    private String image_path;
+    private ArrayList<String> image_path=new ArrayList<>();
+   // private String image_path;
     private AdapterForThumbNails adapterForThumbNails;
 
 
@@ -104,7 +105,7 @@ public class Videos_Fragment extends Fragment  {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter("status-videos"));
 
-        adapterForThumbNails=new AdapterForThumbNails(getActivity(),thumbNails);
+        adapterForThumbNails=new AdapterForThumbNails(getActivity(),thumbNails,image_path);
         videos_recyclerview.setLayoutManager(new GridLayoutManager(getActivity(),2));
         videos_recyclerview.setAdapter(adapterForThumbNails);
 
@@ -115,8 +116,11 @@ public class Videos_Fragment extends Fragment  {
         public void onReceive(Context context, Intent intent) {
             Bundle b = getActivity().getIntent().getExtras();
             HashMap<String, ArrayList<Bitmap>> hashMap = (HashMap<String, ArrayList<Bitmap>>)intent.getSerializableExtra("map");
+            HashMap<String, ArrayList<String>> hashMap1 = (HashMap<String, ArrayList<String>>)intent.getSerializableExtra("url");
             thumbNails.clear();
+            image_path.clear();
             thumbNails.addAll(hashMap.get("bitmap"));
+            image_path.addAll(hashMap1.get("urls"));
             adapterForThumbNails.notifyDataSetChanged();
             videos_refresh.setRefreshing(false);
         }

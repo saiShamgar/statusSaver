@@ -26,6 +26,7 @@ public class GettingStatusVideos  extends JobService {
     GettingVideos getVideos;
     public ArrayList<String> images=new ArrayList<>();
     public ArrayList<Bitmap> thumbNails=new ArrayList<>();
+    public ArrayList<String> video_urls=new ArrayList<>();
     private String image_path,thumbnail_path;
 
     @Override
@@ -59,7 +60,7 @@ public class GettingStatusVideos  extends JobService {
         @Override
         protected void onPostExecute(ArrayList<Bitmap> bitmaps) {
             super.onPostExecute(bitmaps);
-            sendMessage(bitmaps);
+            sendMessage(bitmaps,video_urls);
            //  Log.e("thumbnail", String.valueOf(bitmaps.size()));
         }
     }
@@ -68,6 +69,7 @@ public class GettingStatusVideos  extends JobService {
     private void getImages() {
         images.clear();
         thumbNails.clear();
+        video_urls.clear();
         // long interval =10 * 1000;
          String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/.Statuses";
         //String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/WhatsApp Images";
@@ -83,6 +85,7 @@ public class GettingStatusVideos  extends JobService {
                 if (imagePath.getName().contains(".mp4") || imagePath.getName().contains(".MP4")
                         || imagePath.getName().contains(".3gp") || imagePath.getName().contains(".3GP")) {
                     thumbnail_path = imagePath.getAbsolutePath();
+                    video_urls.add(thumbnail_path);
                     getVideos = new GettingVideos(thumbnail_path);
                     getVideos.execute();
                 }
@@ -98,12 +101,15 @@ public class GettingStatusVideos  extends JobService {
         return bitmap;
     }
 
-    private void sendMessage(ArrayList<Bitmap> strings) {
+    private void sendMessage(ArrayList<Bitmap> strings, ArrayList<String> video_urls) {
        //   Log.e("sender", "Broadcasting message");
         HashMap<String, ArrayList<Bitmap>> hashMap = new HashMap<String, ArrayList<Bitmap>>();
         hashMap.put("bitmap",strings);
+        HashMap<String, ArrayList<String>> hashMap1 = new HashMap<String, ArrayList<String>>();
+        hashMap1.put("urls",video_urls);
         Intent intent = new Intent("status-videos");
         intent.putExtra("map",hashMap);
+        intent.putExtra("url",hashMap1);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }
