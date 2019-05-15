@@ -78,60 +78,122 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(holder.gallery_image);
 
-            holder.gallery_image.setOnClickListener(new View.OnClickListener() {
+
+            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+            File src = new File(images.get(i));
+            File file = new File(descPath+"/"+src.getName());
+            if(file.exists()){
+                holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
+            }
+
+
+            holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
+
+                private GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+
+                        if (holder.gallery_image_favourite_icon.getVisibility()==View.VISIBLE){
+                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+                            File src = new File(images.get(i));
+                            File file = new File(descPath+"/"+src.getName());
+                            boolean deleted = file.delete();
+                            if (deleted){
+                                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+                            copyFileOrDirectory(images.get(i),descPath);
+                            holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                        }
+                        return super.onDoubleTap(e);
+                    }
+
+                    @Override
+                    public boolean onSingleTapConfirmed(MotionEvent e) {
+                        Intent view_photos=new Intent(context, ViewPhotos.class);
+                        view_photos.putStringArrayListExtra("image",images);
+                        view_photos.putExtra("position",i);
+                        context.startActivity(view_photos);
+                        return super.onSingleTapConfirmed(e);
+                    }
+
+                    // implement here other callback methods like onFling, onScroll as necessary
+                });
+
                 @Override
-                public void onClick(View v) {
-                    Intent view_photos=new Intent(context, ViewPhotos.class);
-                    view_photos.putStringArrayListExtra("image",images);
-                    view_photos.putExtra("position",i);
-                    context.startActivity(view_photos);
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+
                 }
             });
+
 
         }else {
             holder.gallery_video_icon.setVisibility(View.VISIBLE);
             holder.gallery_image.setImageBitmap(bitmaps.get(i));
-            holder.gallery_image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent view_photos=new Intent(context, Play_video.class);
-                    view_photos.putStringArrayListExtra("image",path);
-                    view_photos.putExtra("position",i);
-                    context.startActivity(view_photos);
-                }
-            });
+
             //setHasStableIds(true);
 //            //checking image is favourite or not
-//            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-//            File src = new File(path.get(i));
-//            File file = new File(descPath+"/"+src.getName());
-//            if(file.exists()){
-//                holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
-//            }
-//            else{
-//                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
-//            }
+            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+            File src = new File(path.get(i));
+            File file = new File(descPath+"/"+src.getName());
+            if(file.exists()){
+                holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
+            }
+
+            holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
+
+                private GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+
+                        if (holder.gallery_image_favourite_icon.getVisibility()==View.VISIBLE){
+                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+                            File src = new File(path.get(i));
+                            File file = new File(descPath+"/"+src.getName());
+                            boolean deleted = file.delete();
+                            if (deleted){
+                                holder.gallery_image_favourite_icon.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
+                            copyFileOrDirectory(path.get(i),descPath);
+                            holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                        }
+
+                        return super.onDoubleTap(e);
+                    }
+
+                    @Override
+                    public boolean onSingleTapConfirmed(MotionEvent e) {
+                        Intent view_photos=new Intent(context, Play_video.class);
+                        view_photos.putStringArrayListExtra("image",path);
+                        view_photos.putExtra("position",i);
+                        context.startActivity(view_photos);
+                       // return super.onSingleTapUp(e);
+                        return super.onSingleTapConfirmed(e);
+                    }
+                });
 
 
-//            holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
-//
-//                private GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-//                    @Override
-//                    public boolean onDoubleTap(MotionEvent e) {
-//                        String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-//                        copyFileOrDirectory(path.get(i),descPath);
-//                        holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
-//                        return super.onDoubleTap(e);
-//                    }// implement here other callback methods like onFling, onScroll as necessary
-//                });
-//
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    gestureDetector.onTouchEvent(event);
-//                    return true;
-//
-//                }
-//            });
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+
+                }
+            });
+
 
 
         }
