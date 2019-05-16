@@ -38,6 +38,7 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
     private ArrayList<Bitmap> bitmaps;
     private ArrayList<String> path;
     private Bitmap bitmap;
+    private View view;
 
     public Gallery_Photos_Adapter(Context context, ArrayList<String> images, int status) {
         this.context = context;
@@ -51,14 +52,11 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         this.path=video_urls;
     }
 
-    public void Add(Bitmap bitmap){
-        this.bitmap=bitmap;
-    }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_custom_layout,parent,false);
+         view= LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_custom_layout,parent,false);
 
         return new ViewHolder(view);
     }

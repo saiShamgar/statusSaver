@@ -28,7 +28,7 @@
             <ImageView
                 android:layout_width="@dimen/extra_large_50dp"
                 android:layout_height="@dimen/extra_large_50dp"
-                android:src="@drawable/ic_play_circle_outline_video_24dp"
+                android:src="@drawable/ic_play"
                 android:layout_gravity="center"/>
 
         </FrameLayout>

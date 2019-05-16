@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.pg.whatsstatussaver.Fragments.Fav_Video_Frgament;
+import com.pg.whatsstatussaver.Fragments.Fav_photo_Fragment;
 import com.pg.whatsstatussaver.Fragments.FavouriteFragment;
 import com.pg.whatsstatussaver.Fragments.GalleryFragment;
 import com.pg.whatsstatussaver.Fragments.Galley_Photos_Fragment;
@@ -41,6 +43,17 @@ public class Status_photos_adapter extends FragmentStatePagerAdapter {
                     return tab1;
                 case 1:
                     Galley_videos_fragment tab2 = new Galley_videos_fragment();
+                    return tab2;
+            }
+        }
+
+        if (status==3){
+            switch (position) {
+                case 0:
+                    Fav_photo_Fragment tab1 = new Fav_photo_Fragment();
+                    return tab1;
+                case 1:
+                    Fav_Video_Frgament tab2 = new Fav_Video_Frgament();
                     return tab2;
             }
         }

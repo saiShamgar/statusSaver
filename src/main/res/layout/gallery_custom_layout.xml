@@ -23,7 +23,7 @@
             android:id="@+id/gallery_video_icon"
             android:layout_width="@dimen/extra_large_50dp"
             android:layout_height="@dimen/extra_large_50dp"
-            android:src="@drawable/ic_play_circle_outline_video_24dp"
+            android:src="@drawable/ic_play"
             android:layout_gravity="center"
             android:visibility="gone"/>
 
@@ -31,7 +31,7 @@
             android:id="@+id/gallery_image_favourite_icon"
             android:layout_width="@dimen/extra_large_50dp"
             android:layout_height="@dimen/extra_large_50dp"
-            android:src="@drawable/favorite_1"
+            android:src="@drawable/ic_favorite"
             android:layout_gravity="end"
             android:visibility="gone"/>
 
