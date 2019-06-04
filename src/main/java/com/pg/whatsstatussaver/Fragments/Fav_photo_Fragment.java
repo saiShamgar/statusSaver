@@ -18,12 +18,15 @@ import android.widget.Toast;
 import com.pg.whatsstatussaver.Adapters.Favaurite_Adapter;
 import com.pg.whatsstatussaver.Adapters.Gallery_Photos_Adapter;
 import com.pg.whatsstatussaver.InterFace.OnItemclickListener;
+import com.pg.whatsstatussaver.LocalDatabase.DatabaseClient;
+import com.pg.whatsstatussaver.LocalDatabase.ImagesUrlTable;
 import com.pg.whatsstatussaver.R;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,42 +81,20 @@ public class Fav_photo_Fragment extends Fragment implements OnItemclickListener 
 
     private void getImages() {
         images.clear();
-        // String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/.Statuses";
-     //   String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/WhatsApp Images";
-        String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-        // String path = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/WhatsApp Video";
-        File f = new File(path);
-        //  File file[] = f.listFiles();
-        //Log.e("images",file.toString());
-        File files[] = f.listFiles();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
+        List<ImagesUrlTable> taskList = DatabaseClient
+                .getInstance(getActivity())
+                .getAppDatabase()
+                .operations()
+                .getAll();
+
+        if (taskList.size()>0){
+            for (int i=0;i<taskList.size();i++){
+                images.add(taskList.get(i).getUrl());
+            }
+            _fav_photos_refresh.setRefreshing(false);
         }
-        for (File imagePath : files) {
-            try {
-                if (imagePath.getName().contains(".jpg") || imagePath.getName().contains(".JPG")
-                        || imagePath.getName().contains(".jpeg") || imagePath.getName().contains(".JPEG")
-                        || imagePath.getName().contains(".png") || imagePath.getName().contains(".PNG")
-                        || imagePath.getName().contains(".gif") || imagePath.getName().contains(".GIF")
-                        || imagePath.getName().contains(".bmp") || imagePath.getName().contains(".BMP")) {
-                    image_path = imagePath.getAbsolutePath();
-                    images.add(image_path);
-
-                    _fav_photos_refresh.setRefreshing(false);
-                }
-
-//                }else {
-//                    _fav_photos_refresh.setRefreshing(false);
-//                    Toast.makeText(getActivity(),"No favourites found",Toast.LENGTH_LONG).show();
-//
-//
-//                }
-
-            }
-            //  }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        else {
+            _fav_photos_refresh.setRefreshing(false);
         }
     }
 

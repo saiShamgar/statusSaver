@@ -13,7 +13,6 @@
         android:layout_height="180dp"
         app:cardCornerRadius="@dimen/card_elevation_4dp"
         app:cardElevation="4dp">
-
         <ImageView
             android:id="@+id/gallery_image"
             android:layout_width="match_parent"

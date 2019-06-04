@@ -3,6 +3,7 @@ package com.pg.whatsstatussaver.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -17,8 +18,11 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.pg.whatsstatussaver.LocalDatabase.DatabaseClient;
+import com.pg.whatsstatussaver.LocalDatabase.ImagesUrlTable;
 import com.pg.whatsstatussaver.Play_video;
 import com.pg.whatsstatussaver.R;
+import com.pg.whatsstatussaver.Utils.DoubleClickListener;
 import com.pg.whatsstatussaver.ViewPhotos;
 
 import java.io.File;
@@ -46,24 +50,24 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         this.status = status;
     }
 
-    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images,ArrayList<String> video_urls) {
+    public Gallery_Photos_Adapter(Context context, ArrayList<Bitmap> images, ArrayList<String> video_urls) {
         this.context = context;
         this.bitmaps = images;
-        this.path=video_urls;
+        this.path = video_urls;
     }
 
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
-         view= LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_custom_layout,parent,false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.gallery_custom_layout, parent, false);
 
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
-        if (status==1){
+        if (status == 1) {
             CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
             circularProgressDrawable.setStrokeWidth(5f);
             circularProgressDrawable.setCenterRadius(30f);
@@ -77,16 +81,13 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                     .into(holder.gallery_image);
 
 
-            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-            File src = new File(images.get(i));
-            File file = new File(descPath+"/"+src.getName());
-            if(file.exists()){
+            if (DatabaseClient.getInstance(context).getAppDatabase()
+                    .operations().checkUrl(images.get(i))){
                 holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
             }
-            else{
+            else {
                 holder.gallery_image_favourite_icon.setVisibility(View.GONE);
             }
-
 
             holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
 
@@ -94,28 +95,30 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
 
-                        if (holder.gallery_image_favourite_icon.getVisibility()==View.VISIBLE){
-                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-                            File src = new File(images.get(i));
-                            File file = new File(descPath+"/"+src.getName());
-                            boolean deleted = file.delete();
-                            if (deleted){
+                        if (holder.gallery_image_favourite_icon.getVisibility() == View.VISIBLE) {
+                            if (DatabaseClient.getInstance(context).getAppDatabase()
+                                    .operations()
+                                    .delete(images.get(i))>0){
                                 holder.gallery_image_favourite_icon.setVisibility(View.GONE);
                             }
-                        }
-                        else {
-                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-                            copyFileOrDirectory(images.get(i),descPath);
-                            holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                        } else {
+                            ImagesUrlTable urls=new ImagesUrlTable();
+                            urls.setUrl(images.get(i));
+                            if ( DatabaseClient.getInstance(context).getAppDatabase()
+                                    .operations()
+                                    .insert(urls)>0){
+                                holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                            }
+
                         }
                         return super.onDoubleTap(e);
                     }
 
                     @Override
                     public boolean onSingleTapConfirmed(MotionEvent e) {
-                        Intent view_photos=new Intent(context, ViewPhotos.class);
-                        view_photos.putStringArrayListExtra("image",images);
-                        view_photos.putExtra("position",i);
+                        Intent view_photos = new Intent(context, ViewPhotos.class);
+                        view_photos.putStringArrayListExtra("image", images);
+                        view_photos.putExtra("position", i);
                         context.startActivity(view_photos);
                         return super.onSingleTapConfirmed(e);
                     }
@@ -132,21 +135,18 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
             });
 
 
-        }else {
+        } else {
             holder.gallery_video_icon.setVisibility(View.VISIBLE);
             holder.gallery_image.setImageBitmap(bitmaps.get(i));
 
-            //setHasStableIds(true);
-//            //checking image is favourite or not
-            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-            File src = new File(path.get(i));
-            File file = new File(descPath+"/"+src.getName());
-            if(file.exists()){
+            if (DatabaseClient.getInstance(context).getAppDatabase()
+                    .operations().checkUrlVideo(path.get(i))){
                 holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
             }
-            else{
+            else {
                 holder.gallery_image_favourite_icon.setVisibility(View.GONE);
             }
+
 
             holder.gallery_image.setOnTouchListener(new View.OnTouchListener() {
 
@@ -154,19 +154,23 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
 
-                        if (holder.gallery_image_favourite_icon.getVisibility()==View.VISIBLE){
-                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-                            File src = new File(path.get(i));
-                            File file = new File(descPath+"/"+src.getName());
-                            boolean deleted = file.delete();
-                            if (deleted){
+                        if (holder.gallery_image_favourite_icon.getVisibility() == View.VISIBLE) {
+
+                            if (DatabaseClient.getInstance(context).getAppDatabase()
+                                    .operations()
+                                    .deleteVideo(path.get(i))>0){
                                 holder.gallery_image_favourite_icon.setVisibility(View.GONE);
                             }
-                        }
-                        else {
-                            String descPath = Environment.getExternalStorageDirectory().toString()+"/WhatsApp/Media/Favourite";
-                            copyFileOrDirectory(path.get(i),descPath);
-                            holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                        } else {
+
+                            ImagesUrlTable urls=new ImagesUrlTable();
+                            urls.setUrl(path.get(i));
+                            if ( DatabaseClient.getInstance(context).getAppDatabase()
+                                    .operations()
+                                    .insertVideo(urls)>0){
+                                holder.gallery_image_favourite_icon.setVisibility(View.VISIBLE);
+                            }
+
                         }
 
                         return super.onDoubleTap(e);
@@ -174,11 +178,11 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
 
                     @Override
                     public boolean onSingleTapConfirmed(MotionEvent e) {
-                        Intent view_photos=new Intent(context, Play_video.class);
-                        view_photos.putStringArrayListExtra("image",path);
-                        view_photos.putExtra("position",i);
+                        Intent view_photos = new Intent(context, Play_video.class);
+                        view_photos.putStringArrayListExtra("image", path);
+                        view_photos.putExtra("position", i);
                         context.startActivity(view_photos);
-                       // return super.onSingleTapUp(e);
+                        // return super.onSingleTapUp(e);
                         return super.onSingleTapConfirmed(e);
                     }
                 });
@@ -193,7 +197,6 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
             });
 
 
-
         }
 
     }
@@ -202,27 +205,27 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
     public int getItemViewType(int position) {
         return position;
     }
+
     @Override
     public int getItemCount() {
-        if (status==1){
+        if (status == 1) {
             return images.size();
-        }
-        else return bitmaps.size();
+        } else return bitmaps.size();
 
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
-        private ImageView gallery_image,gallery_video_icon,gallery_image_favourite_icon;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private ImageView gallery_image, gallery_video_icon, gallery_image_favourite_icon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            gallery_image=itemView.findViewById(R.id.gallery_image);
-            gallery_video_icon=itemView.findViewById(R.id.gallery_video_icon);
-            gallery_image_favourite_icon=itemView.findViewById(R.id.gallery_image_favourite_icon);
+            gallery_image = itemView.findViewById(R.id.gallery_image);
+            gallery_video_icon = itemView.findViewById(R.id.gallery_video_icon);
+            gallery_image_favourite_icon = itemView.findViewById(R.id.gallery_image_favourite_icon);
         }
     }
 
-    public  void copyFileOrDirectory(String srcDir, String dstDir) {
+    public void copyFileOrDirectory(String srcDir, String dstDir) {
 
         try {
             File src = new File(srcDir);
@@ -247,7 +250,7 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
         }
     }
 
-    public  void copyFile(File sourceFile, File destFile) throws IOException {
+    public void copyFile(File sourceFile, File destFile) throws IOException {
         if (!destFile.getParentFile().exists())
             destFile.getParentFile().mkdirs();
 
@@ -271,4 +274,6 @@ public class Gallery_Photos_Adapter extends RecyclerView.Adapter<Gallery_Photos_
             }
         }
     }
+
+
 }
